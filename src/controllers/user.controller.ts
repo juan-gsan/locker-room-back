@@ -5,19 +5,18 @@ import AuthServices, { Payload } from '../services/auth.js';
 import { User } from '../entities/user.js';
 import { Controller } from './controller.js';
 import { LoginResponse } from '../types/response.api.js';
+import createDebug from 'debug';
+const debug = createDebug('FinalProject:UserController');
 
 export class UserController extends Controller<User> {
   // eslint-disable-next-line no-unused-vars
   constructor(protected repo: UserRepo) {
     super();
+    debug('Instantiated');
   }
 
   async register(req: Request, res: Response, next: NextFunction) {
     try {
-      if (!req.body.user || !req.body.password) {
-        throw new HttpError(400, 'Bad request', 'Invalid User/Password');
-      }
-
       const password = await AuthServices.hash(req.body.password);
       req.body.password = password;
       res.status(201);

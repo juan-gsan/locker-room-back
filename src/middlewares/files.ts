@@ -4,6 +4,7 @@ import path from 'path';
 import { NextFunction, Request, Response } from 'express';
 import { HttpError } from '../types/http.error.js';
 import sharp from 'sharp';
+import crypto from 'crypto';
 const debug = createDebug('FinalProject:FileMiddleware');
 
 const optionsSets: {
@@ -34,6 +35,7 @@ export class FileMiddleware {
       storage: multer.diskStorage({
         destination: 'uploads',
         filename(req, file, callback) {
+          console.log({ file });
           const suffix = crypto.randomUUID();
           const extension = path.extname(file.originalname);
           const basename = path.basename(file.originalname, extension);
@@ -42,7 +44,9 @@ export class FileMiddleware {
           callback(null, filename);
         },
       }),
-      limits: { fileSize },
+      limits: {
+        fileSize,
+      },
     });
     const middleware = upload.single(fileName);
     return middleware;
