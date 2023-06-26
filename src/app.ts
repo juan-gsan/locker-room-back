@@ -2,8 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import createDebug from 'debug';
-// Import { errorHandler } from './middlewares/error.js';
-// import { userRouter } from './routers/user.router.js';
+import { errorHandler } from './middlewares/error.js';
+import { userRouter } from './routers/user.router.js';
 
 const debug = createDebug('FinalProject:App');
 
@@ -17,8 +17,6 @@ app.use(morgan('dev'));
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// TEMP app.use(express.static('public'));
+app.use('/user', userRouter);
 
-// app.use('/user', userRouter);
-
-// app.use(errorHandler);
+app.use(errorHandler);
