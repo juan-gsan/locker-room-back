@@ -10,10 +10,8 @@ export default {
     'src/db/db.connect.ts',
     'src/app.ts',
     'src/config.ts',
-    'src/routers/things.router.ts',
-    'src/routers/films.router.ts',
-    'src/repository/film.mongo.model.ts',
-    'src/repository/user.mongo.model.ts',
     'src/routers/user.router.ts',
+    'src/repository/user.m.model.ts',
+    'src/controllers/controller.ts',
   ],
 };
