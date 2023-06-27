@@ -26,41 +26,35 @@ export class UserController extends Controller<User> {
     }
   }
 
-  private async validateLogin(req: Request) {
-    if (!req.body.user || !req.body.password) {
-      throw new HttpError(400, 'Bad request', 'Invalid User/Password');
-    }
-
-    let data = await this.repo.search({
-      key: 'userName',
-      value: req.body.user,
-    });
-    if (!data.length) {
-      data = await this.repo.search({
-        key: 'email',
-        value: req.body.user,
-      });
-    }
-
-    if (!data.length) {
-      throw new HttpError(400, 'Bad request', 'Invalid User/Password');
-    }
-
-    const isUserValid = await AuthServices.compare(
-      req.body.password,
-      data[0].password
-    );
-
-    if (!isUserValid) {
-      throw new HttpError(400, 'Bad request', 'Invalid User/Password');
-    }
-
-    return data;
-  }
-
   async login(req: Request, res: Response, next: NextFunction) {
     try {
-      const data = await this.validateLogin(req);
+      if (!req.body.user || !req.body.password) {
+        throw new HttpError(400, 'Bad request', 'Invalid User/Password');
+      }
+
+      let data = await this.repo.search({
+        key: 'userName',
+        value: req.body.user,
+      });
+      if (!data.length) {
+        data = await this.repo.search({
+          key: 'email',
+          value: req.body.user,
+        });
+      }
+
+      if (!data.length) {
+        throw new HttpError(400, 'Bad request', 'Invalid User/Password');
+      }
+
+      const isUserValid = await AuthServices.compare(
+        req.body.password,
+        data[0].password
+      );
+
+      if (!isUserValid) {
+        throw new HttpError(400, 'Bad request', 'Invalid User/Password');
+      }
 
       const payload: Payload = {
         id: data[0].id,
