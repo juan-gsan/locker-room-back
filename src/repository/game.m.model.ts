@@ -22,9 +22,8 @@ const gameSchema = new Schema<Game>({
   },
   spotsLeft: {
     type: Number,
-    required: true,
   },
-  location: { type: Schema.Types.ObjectId, ref: 'SportsField' },
+  location: { type: String, required: true },
   owner: { type: Schema.Types.ObjectId, ref: 'User' },
   players: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 });

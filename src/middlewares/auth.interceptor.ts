@@ -1,12 +1,12 @@
 /* eslint-disable no-useless-constructor */
 import { NextFunction, Request, Response } from 'express';
 import { HttpError } from '../types/http.error.js';
-import { UserRepo } from '../repository/user.m.repo.js';
-import AuthServices from '../services/auth.js';
+import AuthServices, { Payload } from '../services/auth.js';
+import { GameRepo } from '../repository/game.m.repo.js';
 
 export class AuthInterceptor {
   // eslint-disable-next-line no-unused-vars
-  constructor(protected repo: UserRepo) {}
+  constructor(protected gameRepo: GameRepo) {}
 
   logged(req: Request, res: Response, next: NextFunction) {
     try {
@@ -27,13 +27,14 @@ export class AuthInterceptor {
       const payload = AuthServices.verifyJWT(token);
 
       req.body.tokenPayload = payload;
+
       next();
     } catch (error) {
       next(error);
     }
   }
 
-  async authorized(req: Request, res: Response, next: NextFunction) {
+  async authorizedForGame(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.body.tokenPayload) {
         throw new HttpError(
@@ -43,8 +44,13 @@ export class AuthInterceptor {
         );
       }
 
-      if (req.body.tokenPayload.id !== req.params.id) {
-        throw new HttpError(498, 'Token not found', 'Invalid Token');
+      const { id: userId } = req.body.tokenPayload as Payload;
+      const { id: gameId } = req.params;
+
+      const game = await this.gameRepo.queryById(gameId);
+
+      if (game.owner.id !== userId) {
+        throw new HttpError(401, 'Not authorized', 'Not authorized');
       }
 
       next();

@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { FileMiddleware } from './files';
 import { HttpError } from '../types/http.error';
 import multer from 'multer';
-import sharp from 'sharp';
+// TEMP import sharp from 'sharp';
 
 type MockMulter = jest.Mock & { diskStorage: jest.Mock };
 type MockSharp = jest.Mock & { [key: string]: jest.Mock };
@@ -44,36 +44,36 @@ describe('Given FilesMiddleware', () => {
     });
   });
 
-  describe('When method optimization is used with the data of a file', () => {
-    const req = {
-      path: '/register',
-      body: {},
-      file: { filename: 'test' },
-    } as Request;
-    const resp = {} as unknown as Response;
-    const next = jest.fn();
+  // TEMP describe('When method optimization is used with the data of a file', () => {
+  //   const req = {
+  //     path: '/register',
+  //     body: {},
+  //     file: { filename: 'test' },
+  //   } as Request;
+  //   const resp = {} as unknown as Response;
+  //   const next = jest.fn();
 
-    test('should be call sharp and next without parameters', async () => {
-      const filesMiddleware = new FileMiddleware();
-      await filesMiddleware.optimization(req, resp, next);
+  //   test('should be call sharp and next without parameters', async () => {
+  //     const filesMiddleware = new FileMiddleware();
+  //     await filesMiddleware.optimization(req, resp, next);
 
-      expect(sharp).toHaveBeenCalled();
-      expect(next).toHaveBeenLastCalledWith();
-    });
-  });
+  //     expect(sharp).toHaveBeenCalled();
+  //     expect(next).toHaveBeenLastCalledWith();
+  //   });
+  // });
 
-  describe('When method optimization is used without data of a file', () => {
-    const req = {
-      path: '/register',
-    } as Request;
-    const resp = {} as unknown as Response;
-    const next = jest.fn();
-    test('Then it should call next with the error', async () => {
-      const filesMiddleware = new FileMiddleware();
-      filesMiddleware.optimization(req, resp, next);
-      expect(next).toHaveBeenLastCalledWith(expect.any(HttpError));
-    });
-  });
+  // describe('When method optimization is used without data of a file', () => {
+  //   const req = {
+  //     path: '/register',
+  //   } as Request;
+  //   const resp = {} as unknown as Response;
+  //   const next = jest.fn();
+  //   test('Then it should call next with the error', async () => {
+  //     const filesMiddleware = new FileMiddleware();
+  //     filesMiddleware.optimization(req, resp, next);
+  //     expect(next).toHaveBeenLastCalledWith(expect.any(HttpError));
+  //   });
+  // });
 
   describe('When method saveImage is used with valid data', () => {
     const req = {

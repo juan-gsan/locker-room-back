@@ -19,7 +19,7 @@ userRouter.get('/:id', controller.getById.bind(controller));
 userRouter.post(
   '/register',
   fileStore.singleFileStore('avatar').bind(fileStore),
-  fileStore.optimization.bind(fileStore),
+  // TEMP fileStore.optimization.bind(fileStore),
   fileStore.saveImage.bind(fileStore),
   controller.register.bind(controller)
 );

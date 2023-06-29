@@ -3,27 +3,27 @@ import createDebug from 'debug';
 import path from 'path';
 import { NextFunction, Request, Response } from 'express';
 import { HttpError } from '../types/http.error.js';
-import sharp from 'sharp';
+// TEMP import sharp from 'sharp';
 import crypto from 'crypto';
 const debug = createDebug('FinalProject:FileMiddleware');
 
-const optionsSets: {
-  [key: string]: {
-    width: number;
-    height: number;
-    fit: keyof sharp.FitEnum;
-    position: string;
-    quality: number;
-  };
-} = {
-  register: {
-    width: 300,
-    height: 300,
-    fit: 'cover',
-    position: 'top',
-    quality: 100,
-  },
-};
+// TEMP const optionsSets: {
+//   [key: string]: {
+//     width: number;
+//     height: number;
+//     fit: keyof sharp.FitEnum;
+//     position: string;
+//     quality: number;
+//   };
+// } = {
+//   register: {
+//     width: 300,
+//     height: 300,
+//     fit: 'cover',
+//     position: 'top',
+//     quality: 100,
+//   },
+// };
 
 export class FileMiddleware {
   constructor() {
@@ -51,35 +51,35 @@ export class FileMiddleware {
     return middleware;
   }
 
-  async optimization(req: Request, res: Response, next: NextFunction) {
-    try {
-      if (!req.file) throw new HttpError(406, 'Not Acceptable', 'Invalid file');
+  // TEMP async optimization(req: Request, res: Response, next: NextFunction) {
+  //   try {
+  //     if (!req.file) throw new HttpError(406, 'Not Acceptable', 'Invalid file');
 
-      const reqPath = req.path.split('/')[1];
-      const options = optionsSets[reqPath];
-      const fileName = req.file.filename;
-      const baseFileName = `${path.basename(fileName, path.extname(fileName))}`;
+  //     const reqPath = req.path.split('/')[1];
+  //     const options = optionsSets[reqPath];
+  //     const fileName = req.file.filename;
+  //     const baseFileName = `${path.basename(fileName, path.extname(fileName))}`;
 
-      const imageData = await sharp(path.join('uploads', fileName))
-        .resize(options.width, options.height, {
-          fit: options.fit,
-          position: options.position,
-        })
-        .webp({ quality: options.quality })
-        .toFormat('webp')
-        .toFile(path.join('uploads', `${baseFileName}_1.webp`));
+  //     const imageData = await sharp(path.join('uploads', fileName))
+  //       .resize(options.width, options.height, {
+  //         fit: options.fit,
+  //         position: options.position,
+  //       })
+  //       .webp({ quality: options.quality })
+  //       .toFormat('webp')
+  //       .toFile(path.join('uploads', `${baseFileName}_1.webp`));
 
-      req.file.originalname = req.file.path;
-      req.file.filename = `${baseFileName}.${imageData.format}`;
-      req.file.mimetype = `image/${imageData.format}`;
-      req.file.path = path.join('uploads', req.file.filename);
-      req.file.size = imageData.size;
+  //     req.file.originalname = req.file.path;
+  //     req.file.filename = `${baseFileName}.${imageData.format}`;
+  //     req.file.mimetype = `image/${imageData.format}`;
+  //     req.file.path = path.join('uploads', req.file.filename);
+  //     req.file.size = imageData.size;
 
-      next();
-    } catch (error) {
-      next(error);
-    }
-  }
+  //     next();
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // }
 
   saveImage = async (req: Request, res: Response, next: NextFunction) => {
     try {

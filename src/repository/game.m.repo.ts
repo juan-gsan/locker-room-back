@@ -30,16 +30,16 @@ export class GameRepo implements Repo<Game> {
   }
 
   async create(data: Omit<Game, 'id'>): Promise<Game> {
-    const newUser = await GameModel.create(data);
-    return newUser;
+    const newGame = await GameModel.create(data);
+    return newGame;
   }
 
   async update(id: string, data: Partial<Game>): Promise<Game> {
-    const newUser = await GameModel.findByIdAndUpdate(id, data, {
+    const newGame = await GameModel.findByIdAndUpdate(id, data, {
       new: true,
     }).exec();
-    if (newUser === null) throw new HttpError(404, 'Not Found', 'Invalid Id');
-    return newUser;
+    if (newGame === null) throw new HttpError(404, 'Not Found', 'Invalid Id');
+    return newGame;
   }
 
   async delete(id: string): Promise<void> {
