@@ -20,7 +20,7 @@ export const gameRouter = createRouter();
 gameRouter.get('/', controller.getAll.bind(controller));
 gameRouter.get('/:id', controller.getById.bind(controller));
 gameRouter.post(
-  '/',
+  '/:id',
   interceptor.logged.bind(interceptor),
   fileStore.singleFileStore('avatar').bind(fileStore),
   // TEMP fileStore.optimization.bind(fileStore),

@@ -15,7 +15,8 @@ export class GameController extends Controller<Game> {
 
   async createGame(req: Request, res: Response, next: NextFunction) {
     try {
-      console.log(req.body);
+      console.log(req.params);
+      req.body.owner = req.params.id;
       res.status(201);
       res.send(await this.repo.create(req.body));
     } catch (error) {
