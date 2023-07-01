@@ -27,7 +27,6 @@ const userSchema = new Schema<User>({
   },
   level: { type: Number, min: 1, max: 5, required: true },
   gender: { type: String, required: true },
-  games: [{ type: Schema.Types.ObjectId, ref: 'Game' }],
 });
 
 userSchema.set('toJSON', {

@@ -8,12 +8,18 @@ export class GameRepo implements Repo<Game> {
   constructor() {}
 
   async query(): Promise<Game[]> {
-    const result = await GameModel.find().exec();
+    const result = await GameModel.find()
+      .populate('owner')
+      .populate('players')
+      .exec();
     return result;
   }
 
   async queryById(id: string): Promise<Game> {
-    const result = await GameModel.findById(id).exec();
+    const result = await GameModel.findById(id)
+      .populate('owner')
+      .populate('players')
+      .exec();
     if (result === null) throw new HttpError(404, 'Not Found', 'Invalid Id');
     return result;
   }
@@ -25,7 +31,10 @@ export class GameRepo implements Repo<Game> {
     key: string;
     value: unknown;
   }): Promise<Game[]> {
-    const result = await GameModel.find({ [key]: value }).exec();
+    const result = await GameModel.find({ [key]: value })
+      .populate('owner')
+      .populate('players')
+      .exec();
     return result;
   }
 
@@ -37,7 +46,10 @@ export class GameRepo implements Repo<Game> {
   async update(id: string, data: Partial<Game>): Promise<Game> {
     const newGame = await GameModel.findByIdAndUpdate(id, data, {
       new: true,
-    }).exec();
+    })
+      .populate('owner')
+      .populate('players')
+      .exec();
     if (newGame === null) throw new HttpError(404, 'Not Found', 'Invalid Id');
     return newGame;
   }

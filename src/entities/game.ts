@@ -15,6 +15,6 @@ export type Game = {
   location: string;
   avatar: Image;
   owner: User;
-  players: User[];
+  players: Partial<User>[];
   tokenPayload: Payload;
 };
