@@ -66,12 +66,17 @@ export class GameController {
 
   async joinGame(req: Request, res: Response, next: NextFunction) {
     try {
-      const owner = await this.userRepo.queryById(req.body.tokenPayload.id);
-      if (!owner) {
-        throw new HttpError(404, 'Owner not found', 'Owner not found');
+      const newPlayer = await this.userRepo.queryById(req.body.tokenPayload.id);
+      if (!newPlayer) {
+        throw new HttpError(
+          404,
+          'New Player not found',
+          'New Player not found'
+        );
       }
 
-      req.body.players.push(owner);
+      req.body.players.push(newPlayer);
+
       res.status(202);
       res.send(await this.gameRepo.update(req.params.id, req.body));
     } catch (error) {
