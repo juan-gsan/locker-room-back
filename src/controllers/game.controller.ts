@@ -75,7 +75,10 @@ export class GameController {
         );
       }
 
-      req.body.players.push(newPlayer);
+      const currentGameData = await this.gameRepo.queryById(req.params.id);
+
+      currentGameData.players.push(newPlayer);
+      req.body = currentGameData;
 
       res.status(202);
       res.send(await this.gameRepo.update(req.params.id, req.body));

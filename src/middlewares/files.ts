@@ -31,6 +31,7 @@ export class FileMiddleware {
   }
 
   singleFileStore(fileName = 'file', fileSize = 8_000_000) {
+    console.log(fileName, fileSize);
     const upload = multer({
       storage: multer.diskStorage({
         destination: 'uploads',

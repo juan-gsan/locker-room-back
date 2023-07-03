@@ -37,8 +37,8 @@ gameRouter.patch(
 );
 gameRouter.patch(
   '/edit/:id',
-  interceptor.logged.bind(interceptor),
   interceptor.authorizedForGame.bind(interceptor),
+  interceptor.logged.bind(interceptor),
   controller.patch.bind(controller)
 );
 gameRouter.delete(
