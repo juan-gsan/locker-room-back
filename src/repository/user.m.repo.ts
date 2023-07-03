@@ -12,6 +12,10 @@ export class UserRepo implements Repo<User> {
     return result;
   }
 
+  async count(): Promise<number> {
+    return UserModel.countDocuments().exec();
+  }
+
   async queryById(id: string): Promise<User> {
     const result = await UserModel.findById(id).exec();
     if (result === null) throw new HttpError(404, 'Not Found', 'Invalid Id');

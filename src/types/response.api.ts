@@ -2,7 +2,8 @@ import { User } from '../entities/user.js';
 
 export type ApiResponse = {
   count: number;
-  page: number;
+  next: string | null;
+  prev: string | null;
   items: { [key: string]: unknown }[];
 };
 

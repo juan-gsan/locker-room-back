@@ -15,12 +15,30 @@ export class GameController {
 
   async getAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const items = await this.gameRepo.query();
+      const offset = parseInt(req.query.offset as string, 10) || 1;
+      const limit = 4;
+
+      const items = await this.gameRepo.query(offset, limit);
+      const count = await this.gameRepo.count();
+
       const response: ApiResponse = {
         items,
-        page: 1,
+        next: null,
+        prev: null,
         count: items.length,
       };
+
+      const baseUrl = `${req.protocol}://${req.get('host')}${req.baseUrl}`;
+
+      if (offset < count / limit) {
+        response.next = `${baseUrl}?offset=${offset + 1}`;
+      }
+
+      if (offset > 1) {
+        response.prev = `${baseUrl}?offset=${offset - 1}`;
+      }
+
+      console.log(response);
       res.status(200);
       res.send(response);
     } catch (error) {

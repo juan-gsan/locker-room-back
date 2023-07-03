@@ -10,7 +10,8 @@ export abstract class Controller<T extends { id: string | number }> {
       const items = await this.repo.query();
       const response: ApiResponse = {
         items,
-        page: 1,
+        next: null,
+        prev: null,
         count: items.length,
       };
       res.status(200);

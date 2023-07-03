@@ -20,7 +20,8 @@ export class UserController extends Controller<User> {
       const items = await this.userRepo.query();
       const response: ApiResponse = {
         items,
-        page: 1,
+        next: null,
+        prev: null,
         count: items.length,
       };
       res.status(200);
