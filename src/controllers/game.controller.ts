@@ -73,10 +73,10 @@ export class GameController {
       }
 
       if (req.body.gameType === 'f11') {
-        req.body.spotsLeft = 22;
+        req.body.spotsLeft = 21;
       }
 
-      console.log(req.body.spotsLeft);
+      console.log(req.body.location);
 
       req.body.owner = owner;
       req.body.players = [];
@@ -89,7 +89,7 @@ export class GameController {
     }
   }
 
-  async patch(req: Request, res: Response, next: NextFunction) {
+  async editGame(req: Request, res: Response, next: NextFunction) {
     try {
       res.status(202);
       res.send(await this.gameRepo.update(req.params.id, req.body));

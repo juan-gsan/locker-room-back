@@ -32,9 +32,9 @@ gameRouter.patch(
 );
 gameRouter.patch(
   '/edit/:id',
-  interceptor.authorizedForGame.bind(interceptor),
   interceptor.logged.bind(interceptor),
-  controller.patch.bind(controller)
+  interceptor.authorizedForGame.bind(interceptor),
+  controller.editGame.bind(controller)
 );
 gameRouter.delete(
   '/:id',

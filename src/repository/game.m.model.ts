@@ -23,7 +23,15 @@ const gameSchema = new Schema<Game>({
   spotsLeft: {
     type: Number,
   },
-  location: { type: String },
+  location: {
+    type: {
+      id: { type: String },
+      name: { type: String },
+      location: { type: String },
+      avatar: { type: String },
+    },
+    required: true,
+  },
   owner: { type: Schema.Types.ObjectId, ref: 'User' },
   players: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 });
