@@ -7,7 +7,6 @@ import { Router as createRouter } from 'express';
 import createDebug from 'debug';
 import { UserRepo } from '../repository/user.m.repo.js';
 import { User } from '../entities/user.js';
-import { FileMiddleware } from '../middlewares/files.js';
 
 const debug = createDebug('FinalProject:gameRouter');
 debug('Executed');
@@ -16,7 +15,6 @@ const gameRepo: Repo<Game> = new GameRepo();
 const userRepo: Repo<User> = new UserRepo();
 const controller = new GameController(gameRepo, userRepo);
 const interceptor = new AuthInterceptor(gameRepo);
-const fileStore = new FileMiddleware();
 
 export const gameRouter = createRouter();
 
@@ -24,10 +22,7 @@ gameRouter.get('/', controller.getAll.bind(controller));
 gameRouter.get('/:id', controller.getById.bind(controller));
 gameRouter.post(
   '/create',
-  fileStore.singleFileStore('avatar').bind(fileStore),
   interceptor.logged.bind(interceptor),
-  // TEMP fileStore.optimization.bind(fileStore),
-  fileStore.saveImage.bind(fileStore),
   controller.createGame.bind(controller)
 );
 gameRouter.patch(
