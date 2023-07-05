@@ -6,12 +6,15 @@ import AuthServices from '../services/auth';
 jest.mock('../services/auth');
 describe('Given a user controller', () => {
   const mockRepo: UserRepo = {
+    query: jest.fn().mockResolvedValue({}),
+    queryById: jest.fn().mockResolvedValue({}),
     search: jest.fn().mockResolvedValue([]),
     create: jest.fn().mockResolvedValue({}),
   } as unknown as UserRepo;
 
   const req = {
     body: {},
+    params: {},
   } as unknown as Request;
 
   const res = {
@@ -28,6 +31,25 @@ describe('Given a user controller', () => {
       await controller.register(req, res, next);
       expect(res.send).toHaveBeenCalled();
       expect(mockRepo.create).toHaveBeenCalled();
+    });
+  });
+
+  describe('When it is instantiated and getAll method is called', () => {
+    test('Then method query should have been called', async () => {
+      const controller = new UserController(mockRepo);
+      await controller.getAll(req, res, next);
+      expect(res.send).toHaveBeenCalled();
+      expect(mockRepo.query).toHaveBeenCalled();
+    });
+  });
+
+  describe('When it is instantiated and getById method is called', () => {
+    test('Then method queryById should have been called', async () => {
+      const controller = new UserController(mockRepo);
+      req.params.id = '';
+      await controller.getById(req, res, next);
+      expect(res.send).toHaveBeenCalled();
+      expect(mockRepo.queryById).toHaveBeenCalledWith(req.params.id);
     });
   });
 
@@ -67,6 +89,31 @@ describe('Given a user controller', () => {
       expect(next).toHaveBeenCalledWith(error);
     });
   });
+
+  describe('When it is instantiated and getAll method is called but found an error', () => {
+    test('Then it should throw an error', async () => {
+      const error = new Error('Illegal arguments: undefined, number');
+      const mockRepo: UserRepo = {
+        query: jest.fn().mockRejectedValue(error),
+      } as unknown as UserRepo;
+      const controller = new UserController(mockRepo);
+      await controller.getAll(req, res, next);
+      expect(next).toHaveBeenCalledWith(error);
+    });
+  });
+
+  describe('When it is instantiated and getById method is called but found an error', () => {
+    test('Then it should throw an error', async () => {
+      const error = new Error('Illegal arguments: undefined, number');
+      const mockRepo: UserRepo = {
+        queryById: jest.fn().mockRejectedValue(error),
+      } as unknown as UserRepo;
+      const controller = new UserController(mockRepo);
+      await controller.getById(req, res, next);
+      expect(next).toHaveBeenCalledWith(error);
+    });
+  });
+
   describe('When it is instantiated and login method is called but there is no user or password', () => {
     test('Then it should throw an error', async () => {
       const error = new HttpError(400, 'Bad request', 'Invalid User/Password');

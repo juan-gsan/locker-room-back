@@ -2,7 +2,8 @@ import { Request, Response } from 'express';
 import { FileMiddleware } from './files';
 import { HttpError } from '../types/http.error';
 import multer from 'multer';
-// TEMP import sharp from 'sharp';
+import sharp from 'sharp';
+import { FireBase } from '../services/firebase';
 
 type MockMulter = jest.Mock & { diskStorage: jest.Mock };
 type MockSharp = jest.Mock & { [key: string]: jest.Mock };
@@ -44,60 +45,62 @@ describe('Given FilesMiddleware', () => {
     });
   });
 
-  // TEMP describe('When method optimization is used with the data of a file', () => {
-  //   const req = {
-  //     path: '/register',
-  //     body: {},
-  //     file: { filename: 'test' },
-  //   } as Request;
-  //   const resp = {} as unknown as Response;
-  //   const next = jest.fn();
+  describe('When method optimization is used with the data of a file', () => {
+    const req = {
+      path: '/register',
+      body: {},
+      file: { filename: 'test' },
+    } as Request;
+    const res = {} as unknown as Response;
+    const next = jest.fn();
 
-  //   test('should be call sharp and next without parameters', async () => {
-  //     const filesMiddleware = new FileMiddleware();
-  //     await filesMiddleware.optimization(req, resp, next);
+    test('should be call sharp and next without parameters', async () => {
+      const filesMiddleware = new FileMiddleware();
+      await filesMiddleware.optimization(req, res, next);
 
-  //     expect(sharp).toHaveBeenCalled();
-  //     expect(next).toHaveBeenLastCalledWith();
-  //   });
-  // });
+      expect(sharp).toHaveBeenCalled();
+      expect(next).toHaveBeenLastCalledWith();
+    });
+  });
 
-  // describe('When method optimization is used without data of a file', () => {
-  //   const req = {
-  //     path: '/register',
-  //   } as Request;
-  //   const resp = {} as unknown as Response;
-  //   const next = jest.fn();
-  //   test('Then it should call next with the error', async () => {
-  //     const filesMiddleware = new FileMiddleware();
-  //     filesMiddleware.optimization(req, resp, next);
-  //     expect(next).toHaveBeenLastCalledWith(expect.any(HttpError));
-  //   });
-  // });
+  describe('When method optimization is used without data of a file', () => {
+    const req = {
+      path: '/register',
+    } as Request;
+    const res = {} as unknown as Response;
+    const next = jest.fn();
+    test('Then it should call next with the error', async () => {
+      const filesMiddleware = new FileMiddleware();
+      filesMiddleware.optimization(req, res, next);
+      expect(next).toHaveBeenLastCalledWith(expect.any(HttpError));
+    });
+  });
 
   describe('When method saveImage is used with valid data', () => {
     const req = {
       body: {},
       file: { filename: 'test' },
     } as Request;
-    const resp = {} as unknown as Response;
+    const res = {} as unknown as Response;
     const next = jest.fn();
 
     test('Then it should call next without parameters', async () => {
+      FireBase.prototype.uploadFile = jest.fn();
       const filesMiddleware = new FileMiddleware();
-      await filesMiddleware.saveImage(req, resp, next);
+      await filesMiddleware.saveImage(req, res, next);
+      expect(FireBase.prototype.uploadFile).toHaveBeenCalled();
       expect(next).toHaveBeenLastCalledWith();
     });
   });
 
   describe('When method saveImage is used with NOT valid data', () => {
     const req = {} as Request;
-    const resp = {} as unknown as Response;
+    const res = {} as unknown as Response;
     const next = jest.fn();
 
     test('Then it should call next with the error', () => {
       const filesMiddleware = new FileMiddleware();
-      filesMiddleware.saveImage(req, resp, next);
+      filesMiddleware.saveImage(req, res, next);
       expect(next).toHaveBeenLastCalledWith(expect.any(HttpError));
     });
   });
