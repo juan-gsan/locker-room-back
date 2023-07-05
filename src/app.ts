@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import createDebug from 'debug';
 import { errorHandler } from './middlewares/error.js';
 import { userRouter } from './routers/user.router.js';
+import { gameRouter } from './routers/game.router.js';
 
 const debug = createDebug('FinalProject:App');
 
@@ -18,5 +19,6 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 app.use('/user', userRouter);
+app.use('/game', gameRouter);
 
 app.use(errorHandler);

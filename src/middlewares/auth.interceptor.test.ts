@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import AuthServices, { Payload } from '../services/auth';
 import { AuthInterceptor } from './auth.interceptor';
-import { UserRepo } from '../repository/user.m.repo';
+import { GameRepo } from '../repository/game.m.repo';
 import { HttpError } from '../types/http.error';
 
 jest.mock('../services/auth');
@@ -14,7 +14,7 @@ describe('Given an interceptor', () => {
       const req = { body: { tokenPayload: mockPayload } } as Request;
       const res = {} as Response;
       req.get = jest.fn().mockReturnValueOnce('Bearer valid token');
-      const mockRepo: UserRepo = {} as unknown as UserRepo;
+      const mockRepo: GameRepo = {} as unknown as GameRepo;
       const interceptor = new AuthInterceptor(mockRepo);
       (AuthServices.verifyJWT as jest.Mock).mockResolvedValueOnce(mockPayload);
       interceptor.logged(req, res, next);
@@ -30,9 +30,9 @@ describe('Given an interceptor', () => {
         params: { id: '1' },
       } as unknown as Request;
       const res = {} as Response;
-      const mockRepo: UserRepo = {} as unknown as UserRepo;
+      const mockRepo: GameRepo = {} as unknown as GameRepo;
       const interceptor = new AuthInterceptor(mockRepo);
-      interceptor.authorized(req, res, next);
+      interceptor.authorizedForGame(req, res, next);
       expect(next).toHaveBeenCalled();
     });
   });
@@ -48,7 +48,7 @@ describe('Given an interceptor', () => {
       const req = { body: { tokenPayload: mockPayload } } as Request;
       const res = {} as Response;
       req.get = jest.fn().mockReturnValueOnce(undefined);
-      const mockRepo: UserRepo = {} as unknown as UserRepo;
+      const mockRepo: GameRepo = {} as unknown as GameRepo;
       const interceptor = new AuthInterceptor(mockRepo);
       (AuthServices.verifyJWT as jest.Mock).mockResolvedValueOnce(mockPayload);
       interceptor.logged(req, res, next);
@@ -67,7 +67,7 @@ describe('Given an interceptor', () => {
       const req = { body: { tokenPayload: mockPayload } } as Request;
       const res = {} as Response;
       req.get = jest.fn().mockReturnValueOnce('Not valid token');
-      const mockRepo: UserRepo = {} as unknown as UserRepo;
+      const mockRepo: GameRepo = {} as unknown as GameRepo;
       const interceptor = new AuthInterceptor(mockRepo);
       (AuthServices.verifyJWT as jest.Mock).mockResolvedValueOnce(mockPayload);
       interceptor.logged(req, res, next);
@@ -87,9 +87,9 @@ describe('Given an interceptor', () => {
         params: { id: '1' },
       } as unknown as Request;
       const res = {} as Response;
-      const mockRepo: UserRepo = {} as unknown as UserRepo;
+      const mockRepo: GameRepo = {} as unknown as GameRepo;
       const interceptor = new AuthInterceptor(mockRepo);
-      interceptor.authorized(req, res, next);
+      interceptor.authorizedForGame(req, res, next);
       expect(next).toHaveBeenCalledWith(error);
     });
   });
@@ -103,9 +103,9 @@ describe('Given an interceptor', () => {
         params: { id: '8' },
       } as unknown as Request;
       const res = {} as Response;
-      const mockRepo: UserRepo = {} as unknown as UserRepo;
+      const mockRepo: GameRepo = {} as unknown as GameRepo;
       const interceptor = new AuthInterceptor(mockRepo);
-      interceptor.authorized(req, res, next);
+      interceptor.authorizedForGame(req, res, next);
       expect(next).toHaveBeenCalledWith(error);
     });
   });
