@@ -15,5 +15,6 @@ export default {
     'src/repository/user.m.model.ts',
     'src/repository/game.m.model.ts',
     'src/controllers/controller.ts',
+    'src/services/firebase.ts',
   ],
 };
