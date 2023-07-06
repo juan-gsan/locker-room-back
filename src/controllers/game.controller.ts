@@ -38,7 +38,6 @@ export class GameController {
         response.prev = `${baseUrl}?offset=${offset - 1}`;
       }
 
-      console.log(response);
       res.status(200);
       res.send(response);
     } catch (error) {
@@ -58,11 +57,10 @@ export class GameController {
   async createGame(req: Request, res: Response, next: NextFunction) {
     try {
       const owner = await this.userRepo.queryById(req.body.tokenPayload.id);
+
       if (!owner) {
         throw new HttpError(404, 'Owner not found', 'Owner not found');
       }
-
-      console.log(req.body.gameType);
 
       if (req.body.gameType === 'f5') {
         req.body.spotsLeft = 9;
@@ -75,8 +73,6 @@ export class GameController {
       if (req.body.gameType === 'f11') {
         req.body.spotsLeft = 21;
       }
-
-      console.log(req.body.location);
 
       req.body.owner = owner;
       req.body.players = [];

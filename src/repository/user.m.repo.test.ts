@@ -15,6 +15,16 @@ describe('Given a UserRepo', () => {
       expect(result).toEqual([]);
     });
   });
+  describe('When it is instantiated and count method is called', () => {
+    test('Then UserModel.countDocuments should have been called', async () => {
+      const repo = new UserRepo();
+      const exec = jest.fn().mockResolvedValueOnce(0);
+      UserModel.countDocuments = jest.fn().mockReturnValueOnce({ exec });
+      const result = await repo.count();
+      expect(exec).toHaveBeenCalled();
+      expect(result).toEqual(0);
+    });
+  });
   describe('When it is instantiated and queryById method is called', () => {
     test('Then UserModel.findById should have been called', async () => {
       const repo = new UserRepo();

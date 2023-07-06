@@ -18,6 +18,13 @@ app.use(morgan('dev'));
 app.use(cors(corsOptions));
 app.use(express.json());
 
+app.set('trust proxy', true);
+
+app.use((req, res, next) => {
+  res.header('Content-Security-Policy', 'upgrade-insecure-requests;');
+  next();
+});
+
 app.use('/user', userRouter);
 app.use('/game', gameRouter);
 
