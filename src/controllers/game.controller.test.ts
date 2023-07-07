@@ -10,13 +10,20 @@ let mockGameRepo: GameRepo;
 let mockUserRepo: UserRepo;
 let req: Request;
 let res: Response;
+let next: NextFunction;
 let count: number;
 let limit: number;
 let mockToken: string;
 let mockGame: {};
+let newPlayer: {};
+let currentGameData: {};
+let updatedGameData: {};
 
 describe('Given a game controller', () => {
   beforeEach(() => {
+    newPlayer = { id: '1' };
+    currentGameData = { id: '5', players: [], spotsLeft: 2 };
+    updatedGameData = { id: '5', players: [newPlayer], spotsLeft: 1 };
     mockToken = '12345';
     mockGame = {};
     limit = 4;
@@ -49,17 +56,16 @@ describe('Given a game controller', () => {
       body: {},
       params: {},
     } as unknown as Request;
+
+    res = {
+      next: 'http://localhost:9999/games?offset=2',
+      prev: null,
+      send: jest.fn(),
+      status: jest.fn().mockReturnThis(),
+    } as unknown as Response;
+
+    next = jest.fn() as NextFunction;
   });
-
-  res = {
-    next: 'http://localhost:9999/games?offset=2',
-    prev: null,
-    send: jest.fn(),
-    status: jest.fn().mockReturnThis(),
-  } as unknown as Response;
-
-  const next = jest.fn() as NextFunction;
-
   describe('When it is instantiated and getAll method is called', () => {
     test('Then method query should have been called', async () => {
       const controller = new GameController(mockGameRepo, mockUserRepo);
@@ -188,34 +194,14 @@ describe('Given a game controller', () => {
 
   describe('When it is instantiated and joinGame method is called', () => {
     test('Then method update should have been called', async () => {
-      const newPlayer = { id: '1' };
-      const currentGameData = { id: '5', players: [], spotsLeft: 2 };
-      const updatedGameData = { id: '5', players: [newPlayer], spotsLeft: 1 };
+      mockUserRepo.queryById = jest.fn().mockResolvedValue(newPlayer);
+      mockGameRepo.queryById = jest.fn().mockResolvedValue(currentGameData);
+      mockGameRepo.update = jest.fn().mockResolvedValue(updatedGameData);
 
-      const mockUserRepo = {
-        queryById: jest.fn().mockResolvedValue(newPlayer),
-      } as unknown as UserRepo;
-
-      const mockGameRepo = {
-        queryById: jest.fn().mockResolvedValue(currentGameData),
-        update: jest.fn().mockResolvedValue(updatedGameData),
-      } as unknown as GameRepo;
+      req.body.tokenPayload = { id: '1' };
+      req.body.params = { id: '5' };
 
       const controller = new GameController(mockGameRepo, mockUserRepo);
-
-      const req = {
-        body: {
-          tokenPayload: { id: '1' },
-        },
-        params: { id: '5' },
-      } as unknown as Request;
-
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        send: jest.fn(),
-      } as unknown as Response;
-
-      const next = jest.fn();
 
       await controller.joinGame(req, res, next);
       expect(mockUserRepo.queryById).toHaveBeenCalledWith('1');
@@ -226,30 +212,13 @@ describe('Given a game controller', () => {
 
   describe('When it is instantiated and editGame method is called', () => {
     test('Then method update should have been called', async () => {
-      const newPlayer = { id: '1' };
-      const currentGameData = { id: '5', players: [], spotsLeft: 2 };
-      const updatedGameData = { id: '5', players: [newPlayer], spotsLeft: 1 };
-
-      const mockGameRepo = {
-        queryById: jest.fn().mockResolvedValue(currentGameData),
-        update: jest.fn().mockResolvedValue(updatedGameData),
-      } as unknown as GameRepo;
-
       const controller = new GameController(mockGameRepo, mockUserRepo);
+      mockUserRepo.queryById = jest.fn().mockResolvedValue(newPlayer);
+      mockGameRepo.queryById = jest.fn().mockResolvedValue(currentGameData);
+      mockGameRepo.update = jest.fn().mockResolvedValue(updatedGameData);
 
-      const req = {
-        body: {
-          tokenPayload: { id: '1' },
-        },
-        params: { id: '5' },
-      } as unknown as Request;
-
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        send: jest.fn(),
-      } as unknown as Response;
-
-      const next = jest.fn();
+      req.body.tokenPayload = { id: '1' };
+      req.body.params = { id: '5' };
 
       await controller.editGame(req, res, next);
 
