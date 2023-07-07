@@ -6,37 +6,58 @@ import { HttpError } from '../types/http.error';
 
 jest.mock('../middlewares/auth.interceptor');
 
+let mockGameRepo: GameRepo;
+let mockUserRepo: UserRepo;
+let req: Request;
+let res: Response;
+let count: number;
+let limit: number;
+let mockToken: string;
+let mockOwner: {};
+let mockGame: {};
+
 describe('Given a game controller', () => {
-  const mockGameRepo: GameRepo = {
-    query: jest.fn().mockResolvedValueOnce([]),
-    queryById: jest.fn().mockResolvedValueOnce({}),
-    count: jest.fn().mockResolvedValueOnce(0),
-    search: jest.fn().mockResolvedValue([]),
-    create: jest.fn().mockResolvedValue({}),
-    update: jest.fn().mockResolvedValueOnce({}),
-    delete: jest.fn().mockResolvedValueOnce(null),
-  } as unknown as GameRepo;
+  beforeEach(() => {
+    mockToken = '12345';
+    mockOwner = { id: mockToken };
+    mockGame = {};
+    limit = 4;
+    count = 10;
+    mockGameRepo = {
+      query: jest.fn().mockResolvedValueOnce([]),
+      queryById: jest.fn().mockResolvedValueOnce({ id: mockToken }),
+      count: jest.fn().mockResolvedValueOnce(count),
+      search: jest.fn().mockResolvedValue([]),
+      create: jest.fn().mockResolvedValue(mockGame),
+      update: jest.fn().mockResolvedValueOnce({}),
+      delete: jest.fn().mockResolvedValueOnce(null),
+    } as unknown as GameRepo;
 
-  const mockUserRepo: UserRepo = {
-    query: jest.fn().mockResolvedValueOnce([]),
-    queryById: jest.fn().mockResolvedValueOnce({}),
-    search: jest.fn().mockResolvedValue([]),
-    create: jest.fn().mockResolvedValue({}),
-    update: jest.fn().mockResolvedValueOnce({}),
-    delete: jest.fn().mockResolvedValueOnce(null),
-  } as unknown as UserRepo;
+    mockUserRepo = {
+      query: jest.fn().mockResolvedValueOnce([]),
+      queryById: jest.fn().mockResolvedValueOnce({}),
+      search: jest.fn().mockResolvedValue([]),
+      create: jest.fn().mockResolvedValue({}),
+      update: jest.fn().mockResolvedValueOnce({}),
+      delete: jest.fn().mockResolvedValueOnce(null),
+    } as unknown as UserRepo;
 
-  const req = {
-    body: {},
-    params: {},
-    query: { offset: 1 },
-  } as unknown as Request;
+    req = {
+      tokenPayload: { id: mockToken },
+      query: { offset: 1 },
+      protocol: 'http',
+      get: jest.fn().mockReturnValue('localhost:9999'),
+      baseUrl: '/game',
+      body: {},
+      params: {},
+    } as unknown as Request;
+  });
 
-  const res = {
+  res = {
     next: 'http://localhost:9999/games?offset=2',
     prev: null,
     send: jest.fn(),
-    status: jest.fn(),
+    status: jest.fn().mockReturnThis(),
   } as unknown as Response;
 
   const next = jest.fn() as NextFunction;
@@ -58,26 +79,9 @@ describe('Given a game controller', () => {
 
     test('Then it should set response.next when offset is less than count / limit', async () => {
       const offset = 2;
-      const count = 10;
-      const limit = 4;
       const expectedNext = 'http://localhost:9999/game?offset=3';
 
-      const req = {
-        query: { offset: '2' },
-        protocol: 'http',
-        get: jest.fn().mockReturnValue('localhost:9999'),
-        baseUrl: '/game',
-      } as unknown as Request;
-
-      const res = {
-        send: jest.fn(),
-        status: jest.fn().mockReturnThis(),
-      } as unknown as Response;
-
-      const mockGameRepo = {
-        query: jest.fn().mockResolvedValue([]),
-        count: jest.fn().mockResolvedValue(count),
-      } as unknown as GameRepo;
+      req.query = { offset: '2' };
 
       const controller = new GameController(mockGameRepo, mockUserRepo);
       await controller.getAll(req, res, next);
@@ -90,26 +94,8 @@ describe('Given a game controller', () => {
     });
     test('Then it should set response.prev when offset is greater than 1', async () => {
       const offset = 2;
-      const count = 10;
-      const limit = 4;
+
       const expectedPrev = 'http://localhost:9999/game?offset=1';
-
-      const req = {
-        query: { offset: '2' },
-        protocol: 'http',
-        get: jest.fn().mockReturnValue('localhost:9999'),
-        baseUrl: '/game',
-      } as unknown as Request;
-
-      const res = {
-        send: jest.fn(),
-        status: jest.fn().mockReturnThis(),
-      } as unknown as Response;
-
-      const mockGameRepo = {
-        query: jest.fn().mockResolvedValue([]),
-        count: jest.fn().mockResolvedValue(count),
-      } as unknown as GameRepo;
 
       const controller = new GameController(mockGameRepo, mockUserRepo);
       await controller.getAll(req, res, next);
@@ -121,17 +107,7 @@ describe('Given a game controller', () => {
       );
     });
     test('Then it should set offset to 1 when req.query.offset is not defined', async () => {
-      const limit = 4;
-      const req = {
-        query: {},
-        protocol: 'http',
-        get: jest.fn().mockReturnValue('localhost:9999'),
-        baseUrl: '/game',
-      } as unknown as Request;
-
-      const mockGameRepo = {
-        query: jest.fn().mockResolvedValue([]),
-      } as unknown as GameRepo;
+      req.query = { offset: {} };
 
       const controller = new GameController(mockGameRepo, mockUserRepo);
       await controller.getAll(req, res, next);
@@ -152,34 +128,9 @@ describe('Given a game controller', () => {
 
   describe('When it is instantiated and createGame method is called', () => {
     test('Then method create should have been called with f5', async () => {
-      const mockToken = '12345';
-      const mockOwner = { id: mockToken };
-      const mockGame = {};
-
-      const mockUserRepo = {
-        queryById: jest.fn().mockResolvedValueOnce(mockOwner),
-      } as unknown as UserRepo;
-
-      const mockCreate = jest.fn().mockResolvedValueOnce(mockGame);
-      const mockGameRepo = {
-        create: mockCreate,
-      } as unknown as GameRepo;
-
       const controller = new GameController(mockGameRepo, mockUserRepo);
 
-      const req = {
-        body: {
-          tokenPayload: { id: mockToken },
-          gameType: 'f5',
-        },
-      } as Request;
-
-      const res = {
-        send: jest.fn(),
-        status: jest.fn(),
-      } as unknown as Response;
-
-      const next = jest.fn();
+      req.body.gameType = 'f5';
 
       await controller.createGame(req, res, next);
 
@@ -195,34 +146,9 @@ describe('Given a game controller', () => {
       });
     });
     test('Then method create should have been called with f7', async () => {
-      const mockToken = '12345';
-      const mockOwner = { id: mockToken };
-      const mockGame = {};
-
-      const mockUserRepo = {
-        queryById: jest.fn().mockResolvedValueOnce(mockOwner),
-      } as unknown as UserRepo;
-
-      const mockCreate = jest.fn().mockResolvedValueOnce(mockGame);
-      const mockGameRepo = {
-        create: mockCreate,
-      } as unknown as GameRepo;
-
       const controller = new GameController(mockGameRepo, mockUserRepo);
 
-      const req = {
-        body: {
-          tokenPayload: { id: mockToken },
-          gameType: 'f7',
-        },
-      } as Request;
-
-      const res = {
-        send: jest.fn(),
-        status: jest.fn(),
-      } as unknown as Response;
-
-      const next = jest.fn();
+      req.body.gameType = 'f7';
 
       await controller.createGame(req, res, next);
 
@@ -238,34 +164,9 @@ describe('Given a game controller', () => {
       });
     });
     test('Then method create should have been called with f11', async () => {
-      const mockToken = '12345';
-      const mockOwner = { id: mockToken };
-      const mockGame = {};
-
-      const mockUserRepo = {
-        queryById: jest.fn().mockResolvedValueOnce(mockOwner),
-      } as unknown as UserRepo;
-
-      const mockCreate = jest.fn().mockResolvedValueOnce(mockGame);
-      const mockGameRepo = {
-        create: mockCreate,
-      } as unknown as GameRepo;
-
       const controller = new GameController(mockGameRepo, mockUserRepo);
 
-      const req = {
-        body: {
-          tokenPayload: { id: mockToken },
-          gameType: 'f11',
-        },
-      } as Request;
-
-      const res = {
-        send: jest.fn(),
-        status: jest.fn(),
-      } as unknown as Response;
-
-      const next = jest.fn();
+      req.body.gameType = 'f11';
 
       await controller.createGame(req, res, next);
 
