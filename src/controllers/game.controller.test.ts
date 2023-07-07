@@ -13,13 +13,11 @@ let res: Response;
 let count: number;
 let limit: number;
 let mockToken: string;
-let mockOwner: {};
 let mockGame: {};
 
 describe('Given a game controller', () => {
   beforeEach(() => {
     mockToken = '12345';
-    mockOwner = { id: mockToken };
     mockGame = {};
     limit = 4;
     count = 10;
