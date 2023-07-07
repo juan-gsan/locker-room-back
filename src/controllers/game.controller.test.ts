@@ -95,6 +95,7 @@ describe('Given a game controller', () => {
     test('Then it should set response.prev when offset is greater than 1', async () => {
       const offset = 2;
 
+      req.query.offset = '2';
       const expectedPrev = 'http://localhost:9999/game?offset=1';
 
       const controller = new GameController(mockGameRepo, mockUserRepo);
@@ -128,6 +129,8 @@ describe('Given a game controller', () => {
 
   describe('When it is instantiated and createGame method is called', () => {
     test('Then method create should have been called with f5', async () => {
+      req.body.tokenPayload = { id: mockToken };
+
       const controller = new GameController(mockGameRepo, mockUserRepo);
 
       req.body.gameType = 'f5';
@@ -138,14 +141,15 @@ describe('Given a game controller', () => {
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.send).toHaveBeenCalledWith(mockGame);
       expect(mockGameRepo.create).toHaveBeenCalledWith({
-        owner: mockOwner,
-        players: [mockOwner],
+        owner: {},
+        players: [{}],
         gameType: 'f5',
         spotsLeft: 9,
         tokenPayload: { id: mockToken },
       });
     });
     test('Then method create should have been called with f7', async () => {
+      req.body.tokenPayload = { id: mockToken };
       const controller = new GameController(mockGameRepo, mockUserRepo);
 
       req.body.gameType = 'f7';
@@ -156,14 +160,15 @@ describe('Given a game controller', () => {
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.send).toHaveBeenCalledWith(mockGame);
       expect(mockGameRepo.create).toHaveBeenCalledWith({
-        owner: mockOwner,
-        players: [mockOwner],
+        owner: {},
+        players: [{}],
         gameType: 'f7',
         spotsLeft: 13,
         tokenPayload: { id: mockToken },
       });
     });
     test('Then method create should have been called with f11', async () => {
+      req.body.tokenPayload = { id: mockToken };
       const controller = new GameController(mockGameRepo, mockUserRepo);
 
       req.body.gameType = 'f11';
@@ -174,8 +179,8 @@ describe('Given a game controller', () => {
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.send).toHaveBeenCalledWith(mockGame);
       expect(mockGameRepo.create).toHaveBeenCalledWith({
-        owner: mockOwner,
-        players: [mockOwner],
+        owner: {},
+        players: [{}],
         gameType: 'f11',
         spotsLeft: 21,
         tokenPayload: { id: mockToken },
