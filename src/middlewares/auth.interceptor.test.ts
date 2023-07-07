@@ -3,10 +3,45 @@ import AuthServices, { Payload } from '../services/auth';
 import { AuthInterceptor } from './auth.interceptor';
 import { GameRepo } from '../repository/game.m.repo';
 import { HttpError } from '../types/http.error';
+import { Game } from '../entities/game';
+import { Image } from '../types/image';
 
 jest.mock('../services/auth');
 
 describe('Given an interceptor', () => {
+  let next: NextFunction;
+  let mockPayload;
+  let req: Request;
+  let mockGame: Partial<Game>;
+  let res: Response;
+  let mockRepo: GameRepo;
+  let interceptor: AuthInterceptor;
+
+  beforeEach(() => {
+    next = jest.fn() as NextFunction;
+    mockPayload = { id: '1' } as Payload;
+    req = {
+      body: { tokenPayload: mockPayload },
+      params: { id: '1' },
+    } as unknown as Request;
+    mockGame = {
+      owner: {
+        id: '1',
+        userName: 'test',
+        password: 'test',
+        level: 1,
+        gender: 'female',
+        email: 'test',
+        avatar: {} as Image,
+      },
+    };
+    res = {} as Response;
+    mockRepo = {
+      queryById: jest.fn().mockResolvedValueOnce({ owner: { id: '1' } }),
+    } as unknown as GameRepo;
+    interceptor = new AuthInterceptor(mockRepo);
+  });
+
   describe('When it is instantiated and logged method is called', () => {
     test('Then next should have been called', () => {
       const next = jest.fn() as NextFunction;
@@ -24,39 +59,18 @@ describe('Given an interceptor', () => {
 
   describe('When it is instantiated and authorizedForGame method is called', () => {
     test('Then gameRepo.queryById should have been called', () => {
-      const next = jest.fn() as NextFunction;
-      const mockPayload = { id: '1' } as Payload;
-      const req = {
-        body: { tokenPayload: mockPayload },
-        params: { id: '1' },
-      } as unknown as Request;
-      const mockGame = { owner: { id: '1' } };
-      const res = {} as Response;
-      const mockRepo: GameRepo = {
-        queryById: jest.fn().mockResolvedValueOnce({ owner: { id: '1' } }),
-      } as unknown as GameRepo;
-      const interceptor = new AuthInterceptor(mockRepo);
-      mockRepo.queryById(mockGame.owner.id);
-      interceptor.authorizedForGame(req, res, next);
-      expect(mockRepo.queryById).toHaveBeenCalledWith(mockGame.owner.id);
+      mockRepo.queryById(mockGame.owner!.id);
+      interceptor.authorizedForGame(
+        req as Request,
+        res as Response,
+        next as NextFunction
+      );
+      expect(mockRepo.queryById).toHaveBeenCalledWith(mockGame.owner!.id);
     });
   });
 
   describe('When it is instantiated and authorizedForGame method is called', () => {
     test('Then next should have been called', async () => {
-      const next: NextFunction = jest.fn();
-      const mockPayload = { id: '1' } as Payload;
-      const req = {
-        body: { tokenPayload: mockPayload },
-        params: { id: '1' },
-      } as unknown as Request;
-      const mockGame = { owner: { id: '1' } };
-      const res = {} as Response;
-      const mockRepo = {
-        queryById: jest.fn().mockResolvedValueOnce(mockGame),
-      } as unknown as GameRepo;
-      const interceptor = new AuthInterceptor(mockRepo);
-
       await interceptor.authorizedForGame(req, res, next);
 
       expect(next).toHaveBeenCalled();
@@ -122,18 +136,12 @@ describe('Given an interceptor', () => {
   describe('When authorized method is called but the body id is different from the params id', () => {
     test('Then it should throw an error', async () => {
       const error = new HttpError(401, 'Not authorized', 'Not authorized');
-      const next: NextFunction = jest.fn();
+
       const mockPayload = { id: '5' } as Payload;
       const req = {
         body: { tokenPayload: mockPayload },
         params: { id: '1' },
       } as unknown as Request;
-      const mockGame = { owner: { id: '1' } };
-      const res = {} as Response;
-      const mockRepo = {
-        queryById: jest.fn().mockResolvedValueOnce(mockGame),
-      } as unknown as GameRepo;
-      const interceptor = new AuthInterceptor(mockRepo);
 
       await interceptor.authorizedForGame(req, res, next);
 
