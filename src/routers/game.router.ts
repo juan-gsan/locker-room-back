@@ -26,9 +26,14 @@ gameRouter.post(
   controller.createGame.bind(controller)
 );
 gameRouter.patch(
-  '/:id',
+  '/join/:id',
   interceptor.logged.bind(interceptor),
   controller.joinGame.bind(controller)
+);
+gameRouter.patch(
+  '/leave/:id',
+  interceptor.logged.bind(interceptor),
+  controller.leaveGame.bind(controller)
 );
 gameRouter.patch(
   '/edit/:id',

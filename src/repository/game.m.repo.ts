@@ -7,9 +7,16 @@ export class GameRepo implements Repo<Game> {
   // eslint-disable-next-line no-useless-constructor
   constructor() {}
 
-  async query(offset = 1, limit = 2): Promise<Game[]> {
+  async query(offset = 1, limit = 2, filter?: string): Promise<Game[]> {
     offset = parseInt(offset as any, 10);
     limit = parseInt(limit as any, 10);
+
+    const queryObj = {} as any;
+
+    if (filter) {
+      queryObj.filter = filter;
+    }
+
     const result = await GameModel.find()
       .skip((offset - 1) * limit)
       .limit(limit)
@@ -19,8 +26,14 @@ export class GameRepo implements Repo<Game> {
     return result;
   }
 
-  async count(): Promise<number> {
-    return GameModel.countDocuments().exec();
+  async count(filter?: string): Promise<number> {
+    const queryObj = {} as any;
+
+    if (filter) {
+      queryObj.filter = filter;
+    }
+
+    return GameModel.countDocuments(queryObj).exec();
   }
 
   async queryById(id: string): Promise<Game> {
