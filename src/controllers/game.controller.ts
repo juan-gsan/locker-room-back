@@ -17,7 +17,6 @@ export class GameController {
     try {
       const offset = parseInt(req.query.offset as string, 10) || 1;
       const limit = 4;
-      const filter = req.query.filter as string;
 
       const items = await this.gameRepo.query(offset, limit);
       const count = await this.gameRepo.count();
@@ -28,24 +27,6 @@ export class GameController {
         prev: null,
         count: items.length,
       };
-
-      if (filter) {
-        response.items = await this.gameRepo.query(offset, limit, filter);
-        const count = await this.gameRepo.count(filter);
-
-        const baseUrl = `${req.protocol}://${req.get('host')}${req.baseUrl}`;
-
-        if (offset < count / limit) {
-          response.next = `${baseUrl}?offset=${offset + 1}`;
-        }
-
-        if (offset > 1) {
-          response.prev = `${baseUrl}?offset=${offset - 1}`;
-        }
-
-        res.status(200);
-        res.send(response);
-      }
 
       const baseUrl = `${req.protocol}://${req.get('host')}${req.baseUrl}`;
 

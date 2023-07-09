@@ -3,6 +3,7 @@ import { GameRepo } from '../repository/game.m.repo';
 import { GameController } from './game.controller';
 import { UserRepo } from '../repository/user.m.repo';
 import { HttpError } from '../types/http.error';
+import { Game } from '../entities/game';
 
 jest.mock('../middlewares/auth.interceptor');
 
@@ -16,13 +17,18 @@ let limit: number;
 let mockToken: string;
 let mockGame: {};
 let newPlayer: {};
-let currentGameData: {};
+let currentGameData = {
+  players: [
+    { id: '1', userName: 'Fratini' },
+    { id: '2', userName: 'Nitin' },
+  ],
+} as unknown as Game;
 let updatedGameData: {};
 
 describe('Given a game controller', () => {
   beforeEach(() => {
     newPlayer = { id: '1' };
-    currentGameData = { id: '5', players: [], spotsLeft: 2 };
+    currentGameData = { id: '5', players: [], spotsLeft: 2 } as unknown as Game;
     updatedGameData = { id: '5', players: [newPlayer], spotsLeft: 1 };
     mockToken = '12345';
     mockGame = {};
@@ -210,6 +216,27 @@ describe('Given a game controller', () => {
     });
   });
 
+  describe('When it is instantiated and leaveGame method is called', () => {
+    test('Then method update should have been called', async () => {
+      currentGameData = {
+        players: [{ id: '1' }, { id: '5' }],
+      } as unknown as Game;
+
+      mockUserRepo.queryById = jest.fn().mockResolvedValue(newPlayer);
+      mockGameRepo.queryById = jest.fn().mockResolvedValue(currentGameData);
+      mockGameRepo.update = jest.fn().mockResolvedValue(updatedGameData);
+      req.body.tokenPayload = { id: '1' };
+      req.body.params = { id: '5' };
+
+      const controller = new GameController(mockGameRepo, mockUserRepo);
+
+      await controller.leaveGame(req, res, next);
+      expect(mockUserRepo.queryById).toHaveBeenCalledWith('1');
+      expect(mockGameRepo.update).toHaveBeenCalledWith(req.params.id, req.body);
+      expect(res.send).toHaveBeenCalled();
+    });
+  });
+
   describe('When it is instantiated and editGame method is called', () => {
     test('Then method update should have been called', async () => {
       const controller = new GameController(mockGameRepo, mockUserRepo);
@@ -382,6 +409,51 @@ describe('Given a Game controller', () => {
 
       const controller = new GameController(mockGameRepo, mockUserRepo);
       await controller.joinGame(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(error);
+    });
+  });
+
+  describe('When it is instantiated and leaveGame method is called but is not valid', () => {
+    test('Then it should throw an error', async () => {
+      const error = new Error('Illegal arguments: undefined, number');
+      const mockUserRepo: UserRepo = {
+        queryById: jest.fn().mockRejectedValue(error),
+      } as unknown as UserRepo;
+      const mockGameRepo: GameRepo = {
+        update: jest.fn().mockRejectedValue(error),
+      } as unknown as GameRepo;
+
+      const controller = new GameController(mockGameRepo, mockUserRepo);
+      await controller.leaveGame(req, res, next);
+      expect(next).toHaveBeenCalledWith(error);
+    });
+  });
+
+  describe('When it is instantiated and leaveGame method is called but user is not valid', () => {
+    test('Then it should throw an error', async () => {
+      const error = new HttpError(
+        404,
+        'New Player not found',
+        'New Player not found'
+      );
+
+      const mockUserRepo: UserRepo = {
+        queryById: jest.fn().mockResolvedValue(null),
+      } as unknown as UserRepo;
+      const mockGameRepo: GameRepo = {} as unknown as GameRepo;
+
+      const req = {
+        body: {
+          tokenPayload: {
+            id: null,
+          },
+          gameType: 'f5',
+        },
+      } as unknown as Request;
+
+      const controller = new GameController(mockGameRepo, mockUserRepo);
+      await controller.leaveGame(req, res, next);
 
       expect(next).toHaveBeenCalledWith(error);
     });
