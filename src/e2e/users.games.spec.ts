@@ -8,7 +8,6 @@ import { dbConnect } from '../db/db.connect';
 import { Game } from '../entities/game';
 import { SportsField } from '../types/sports.field';
 import { app } from '../app';
-import { Image } from '../types/image';
 
 const setUsersList = async () => {
   const mockUsers = [
