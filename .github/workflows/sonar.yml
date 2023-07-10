@@ -17,12 +17,13 @@ jobs:
         run: npm ci
       - name: Testing in production with coverage
         run: npm run test:prod #Change for a valid npm script
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
         env:
           DB_USER: ${{ secrets.DB_USER }}
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
