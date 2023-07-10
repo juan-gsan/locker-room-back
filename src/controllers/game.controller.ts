@@ -118,6 +118,32 @@ export class GameController {
     }
   }
 
+  async leaveGame(req: Request, res: Response, next: NextFunction) {
+    try {
+      debug(req.body.tokenPayload);
+      const newPlayer = await this.userRepo.queryById(req.body.tokenPayload.id);
+      if (!newPlayer) {
+        throw new HttpError(
+          404,
+          'New Player not found',
+          'New Player not found'
+        );
+      }
+
+      const currentGameData = await this.gameRepo.queryById(req.params.id);
+      currentGameData.players = currentGameData.players.filter(
+        (player) => player.id !== req.body.tokenPayload.id
+      );
+      currentGameData.spotsLeft += 1;
+      req.body = currentGameData;
+
+      res.status(202);
+      res.send(await this.gameRepo.update(req.params.id, req.body));
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async deleteById(req: Request, res: Response, next: NextFunction) {
     try {
       res.status(204);

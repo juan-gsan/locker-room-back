@@ -10,6 +10,7 @@ export class GameRepo implements Repo<Game> {
   async query(offset = 1, limit = 2): Promise<Game[]> {
     offset = parseInt(offset as any, 10);
     limit = parseInt(limit as any, 10);
+
     const result = await GameModel.find()
       .skip((offset - 1) * limit)
       .limit(limit)
