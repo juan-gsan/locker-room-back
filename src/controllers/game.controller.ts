@@ -5,6 +5,7 @@ import createDebug from 'debug';
 import { UserRepo } from '../repository/user.m.repo.js';
 import { HttpError } from '../types/http.error.js';
 import { ApiResponse } from '../types/response.api.js';
+import { Game } from '../entities/game.js';
 const debug = createDebug('FinalProject:GameController');
 
 export class GameController {
@@ -17,29 +18,60 @@ export class GameController {
     try {
       const offset = parseInt(req.query.offset as string, 10) || 1;
       const limit = 4;
+      const filter = req.query.filter as string;
+      let items: Game[] = [];
+      let next = null;
+      let prev = null;
+      let baseUrl = '';
 
-      const items = await this.gameRepo.query(offset, limit);
-      const count = await this.gameRepo.count();
+      if (filter) {
+        items = await this.gameRepo.query(offset, limit, filter);
+        const totalCount = await this.gameRepo.count(filter);
+        const totalPages = Math.ceil(totalCount / limit);
+        baseUrl = `${req.protocol}://${req.get('host')}${req.baseUrl}`;
 
-      const response: ApiResponse = {
-        items,
-        next: null,
-        prev: null,
-        count: items.length,
-      };
+        if (offset < totalPages) {
+          next = `${baseUrl}?filter=${filter}?offset=${offset + 1}`;
+        }
 
-      const baseUrl = `${req.protocol}://${req.get('host')}${req.baseUrl}`;
+        if (offset > 1) {
+          prev = `${baseUrl}?filter=${filter}?offset=${offset - 1}`;
+        }
 
-      if (offset < count / limit) {
-        response.next = `${baseUrl}?offset=${offset + 1}`;
+        const response: ApiResponse = {
+          items,
+          next,
+          prev,
+          count: await this.gameRepo.count(filter),
+        };
+
+        res.status(200);
+        res.send(response);
+      } else {
+        items = await this.gameRepo.query(offset, limit);
+        const totalCount = await this.gameRepo.count();
+        const totalPages = Math.ceil(totalCount / limit);
+
+        baseUrl = `${req.protocol}://${req.get('host')}${req.baseUrl}`;
+
+        if (offset < totalPages) {
+          next = `${baseUrl}?offset=${offset + 1}`;
+        }
+
+        if (offset > 1) {
+          prev = `${baseUrl}?offset=${offset - 1}`;
+        }
+
+        const response: ApiResponse = {
+          items,
+          next,
+          prev,
+          count: await this.gameRepo.count(),
+        };
+
+        res.status(200);
+        res.send(response);
       }
-
-      if (offset > 1) {
-        response.prev = `${baseUrl}?offset=${offset - 1}`;
-      }
-
-      res.status(200);
-      res.send(response);
     } catch (error) {
       next(error);
     }
