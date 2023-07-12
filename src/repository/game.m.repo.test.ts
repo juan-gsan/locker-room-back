@@ -6,11 +6,10 @@ import { GameRepo } from './game.m.repo';
 jest.mock('./game.m.model.js');
 
 describe('Given a GameRepo', () => {
-  describe('When it is instantiated and query method is called', () => {
+  describe('When it is instantiated and query method is called without filter', () => {
     test('Then GameModel.find should have been called', async () => {
       const repo = new GameRepo();
       const exec = jest.fn().mockResolvedValueOnce([]);
-
       const populate = jest
         .fn()
         .mockReturnValue({ populate: jest.fn().mockReturnValueOnce({ exec }) });
@@ -18,6 +17,25 @@ describe('Given a GameRepo', () => {
       const skip = jest.fn().mockReturnValue({ limit });
       GameModel.find = jest.fn().mockReturnValueOnce({ skip });
       const result = await repo.query();
+
+      expect(exec).toHaveBeenCalled();
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('When it is instantiated and query method is called with filter', () => {
+    test('Then GameModel.find should have been called', async () => {
+      const repo = new GameRepo();
+      const exec = jest.fn().mockResolvedValueOnce([]);
+      const mockQuery = { gameType: 'f5' };
+      const populate = jest
+        .fn()
+        .mockReturnValue({ populate: jest.fn().mockReturnValueOnce({ exec }) });
+      const limit = jest.fn().mockReturnValue({ populate });
+      const skip = jest.fn().mockReturnValue({ limit });
+      GameModel.find = jest.fn().mockReturnValueOnce({ skip });
+      const result = await repo.query(1, 4, mockQuery.gameType);
+
       expect(exec).toHaveBeenCalled();
       expect(result).toEqual([]);
     });
@@ -26,9 +44,11 @@ describe('Given a GameRepo', () => {
   describe('When it is instantiated and count method is called', () => {
     test('Then GameModel.countDocuments should have been called', async () => {
       const repo = new GameRepo();
+      const mockQuery = { gameType: 'f7' };
       const exec = jest.fn().mockResolvedValueOnce(0);
       GameModel.countDocuments = jest.fn().mockReturnValueOnce({ exec });
-      const result = await repo.count();
+      const result = await repo.count(mockQuery.gameType);
+
       expect(exec).toHaveBeenCalled();
       expect(result).toEqual(0);
     });
