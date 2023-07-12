@@ -241,4 +241,83 @@ describe('Given the app with /user path and connected to MongoDB', () => {
       expect(response.status).toBe(500);
     });
   });
+  describe('When post method to game/create path is called', () => {
+    test('Then if the payload is Ok, the status code should be 201', async () => {
+      userLogin();
+
+      const mockUrl = '/game/create/';
+
+      const response = await request(app)
+        .post(mockUrl)
+        .set('Authorization', `Bearer ${mockTokenPayloadFirstUser}`)
+        .send(mockGamePayload);
+
+      expect(response.status).toBe(201);
+    });
+    test('Then if the payload is not Ok, the status code should be 401', async () => {
+      userLogin();
+
+      const mockUrl = '/game/create/';
+
+      const response = await request(app).post(mockUrl);
+
+      expect(response.status).toBe(401);
+    });
+  });
+
+  describe('When patch method to game/join/:id path is called', () => {
+    test('Then if the payload is Ok, the status code should be 202', async () => {
+      userLogin();
+
+      const mockUrl = `/game/join/${mockFirstGameId}`;
+
+      const response = await request(app)
+        .patch(mockUrl)
+        .set('Authorization', `Bearer ${mockTokenPayloadFirstUser}`)
+        .send(mockGamePayload);
+
+      expect(response.status).toBe(202);
+    });
+
+    test('Then if the payload is not Ok, the status code should be 404', async () => {
+      const mockUrl = '/game/join/00000';
+
+      const response = await request(app).post(mockUrl);
+
+      expect(response.status).toBe(404);
+    });
+  });
+
+  describe('When patch method to game/leave/:id path is called', () => {
+    test('Then if the payload is Ok, the status code should be 202', async () => {
+      userLogin();
+
+      const mockUrl = `/game/leave/${mockFirstGameId}`;
+
+      const response = await request(app)
+        .patch(mockUrl)
+        .set('Authorization', `Bearer ${mockTokenPayloadFirstUser}`)
+        .send(mockGamePayload);
+
+      expect(response.status).toBe(202);
+    });
+
+    test('Then if the payload is not Ok, the status code should be 404', async () => {
+      const mockUrl = '/game/leave/00000';
+
+      const response = await request(app).post(mockUrl);
+
+      expect(response.status).toBe(404);
+    });
+  });
+
+  describe('When patch method to game/edit/:id path is called', () => {
+    test('Then if the payload is not Ok, the status code should be 404', async () => {
+      const mockUrl = '/game/edit/00000';
+
+      const response = await request(app).post(mockUrl);
+
+      expect(response.status).toBe(404);
+    });
+  });
 });

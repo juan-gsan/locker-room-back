@@ -127,6 +127,76 @@ describe('Given a game controller', () => {
     });
   });
 
+  describe('When it is instantiated and getAll method is called with filter', () => {
+    test('Then method query should have been called', async () => {
+      const controller = new GameController(mockGameRepo, mockUserRepo);
+      const mockOffset = 1;
+      const mockLimit = 4;
+      const mockFilter = 'f5';
+      req.query.filter = 'f5';
+      req.protocol = 'http';
+      req.get = jest.fn().mockReturnValue('localhost:9999');
+      req.baseUrl = '/games';
+
+      await controller.getAll(req, res, next);
+      expect(mockGameRepo.query).toHaveBeenCalledWith(
+        mockOffset,
+        mockLimit,
+        mockFilter
+      );
+      expect(mockGameRepo.count).toHaveBeenCalled();
+      expect(res.send).toHaveBeenCalled();
+    });
+
+    test('Then it should set response.next when offset is less than count / limit', async () => {
+      const offset = 2;
+      const expectedNext = 'http://localhost:9999/game?filter=f5?offset=3';
+      const mockFilter = 'f5';
+
+      req.query = { offset: '2', filter: 'f5' };
+
+      const controller = new GameController(mockGameRepo, mockUserRepo);
+      await controller.getAll(req, res, next);
+
+      expect(mockGameRepo.query).toHaveBeenCalledWith(
+        offset,
+        limit,
+        mockFilter
+      );
+      expect(mockGameRepo.count).toHaveBeenCalled();
+      expect(res.send).toHaveBeenCalledWith(
+        expect.objectContaining({ next: expectedNext })
+      );
+    });
+    test('Then it should set response.prev when offset is greater than 1', async () => {
+      const offset = 2;
+      req.query.filter = 'f7';
+      req.query.offset = '2';
+      const expectedPrev = 'http://localhost:9999/game?filter=f7?offset=1';
+      const mockFilter = 'f7';
+      const controller = new GameController(mockGameRepo, mockUserRepo);
+      await controller.getAll(req, res, next);
+
+      expect(mockGameRepo.query).toHaveBeenCalledWith(
+        offset,
+        limit,
+        mockFilter
+      );
+      expect(mockGameRepo.count).toHaveBeenCalled();
+      expect(res.send).toHaveBeenCalledWith(
+        expect.objectContaining({ prev: expectedPrev })
+      );
+    });
+    test('Then it should set offset to 1 when req.query.offset is not defined', async () => {
+      req.query = { offset: {}, filter: 'f5' };
+      const mockFilter = 'f5';
+      const controller = new GameController(mockGameRepo, mockUserRepo);
+      await controller.getAll(req, res, next);
+
+      expect(mockGameRepo.query).toHaveBeenCalledWith(1, limit, mockFilter);
+    });
+  });
+
   describe('When it is instantiated and getById method is called', () => {
     test('Then method queryById should have been called', async () => {
       const controller = new GameController(mockGameRepo, mockUserRepo);
