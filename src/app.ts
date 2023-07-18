@@ -20,8 +20,15 @@ app.use(express.json());
 
 app.set('trust proxy', true);
 
+app.use(express.static('public'));
+
 app.use((req, res, next) => {
   res.header('Content-Security-Policy', 'upgrade-insecure-requests;');
+  next();
+});
+
+app.get('/', (req, res, next) => {
+  res.send('Welcome to the Express App!');
   next();
 });
 
