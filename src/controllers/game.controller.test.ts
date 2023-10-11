@@ -401,105 +401,59 @@ describe('Given a Game controller', () => {
     });
   });
 
-  describe('When it is instantiated and editGame method is called but is not valid', () => {
-    test('Then it should throw an error', async () => {
-      const error = new Error('Illegal arguments: undefined, number');
-      const mockUserRepo: UserRepo = {
-        queryById: jest.fn().mockRejectedValue(error),
-      } as unknown as UserRepo;
-      const mockGameRepo: GameRepo = {
-        update: jest.fn().mockRejectedValue(error),
-      } as unknown as GameRepo;
+  describe('When it is instantiated and try to update games but id is not valid', () => {
+    const error = new Error('Illegal arguments: undefined, number');
+    const mockUserRepo: UserRepo = {
+      queryById: jest.fn().mockRejectedValue(error),
+    } as unknown as UserRepo;
+    const mockGameRepo: GameRepo = {
+      update: jest.fn().mockRejectedValue(error),
+    } as unknown as GameRepo;
 
+    test('Then editGame method should throw an error', async () => {
       const controller = new GameController(mockGameRepo, mockUserRepo);
       await controller.editGame(req, res, next);
       expect(next).toHaveBeenCalledWith(error);
     });
-  });
-
-  describe('When it is instantiated and joinGame method is called but is not valid', () => {
-    test('Then it should throw an error', async () => {
-      const error = new Error('Illegal arguments: undefined, number');
-      const mockUserRepo: UserRepo = {
-        queryById: jest.fn().mockRejectedValue(error),
-      } as unknown as UserRepo;
-      const mockGameRepo: GameRepo = {
-        update: jest.fn().mockRejectedValue(error),
-      } as unknown as GameRepo;
-
+    test('Then joinGame method should throw an error', async () => {
       const controller = new GameController(mockGameRepo, mockUserRepo);
       await controller.joinGame(req, res, next);
       expect(next).toHaveBeenCalledWith(error);
     });
-  });
-
-  describe('When it is instantiated and joinGame method is called but user is not valid', () => {
-    test('Then it should throw an error', async () => {
-      const error = new HttpError(
-        404,
-        'New Player not found',
-        'New Player not found'
-      );
-
-      const mockUserRepo: UserRepo = {
-        queryById: jest.fn().mockResolvedValue(null),
-      } as unknown as UserRepo;
-      const mockGameRepo: GameRepo = {} as unknown as GameRepo;
-
-      const req = {
-        body: {
-          tokenPayload: {
-            id: null,
-          },
-          gameType: 'f5',
-        },
-      } as unknown as Request;
-
-      const controller = new GameController(mockGameRepo, mockUserRepo);
-      await controller.joinGame(req, res, next);
-
-      expect(next).toHaveBeenCalledWith(error);
-    });
-  });
-
-  describe('When it is instantiated and leaveGame method is called but is not valid', () => {
-    test('Then it should throw an error', async () => {
-      const error = new Error('Illegal arguments: undefined, number');
-      const mockUserRepo: UserRepo = {
-        queryById: jest.fn().mockRejectedValue(error),
-      } as unknown as UserRepo;
-      const mockGameRepo: GameRepo = {
-        update: jest.fn().mockRejectedValue(error),
-      } as unknown as GameRepo;
-
+    test('Then leaveGame method should throw an error', async () => {
       const controller = new GameController(mockGameRepo, mockUserRepo);
       await controller.leaveGame(req, res, next);
       expect(next).toHaveBeenCalledWith(error);
     });
   });
 
-  describe('When it is instantiated and leaveGame method is called but user is not valid', () => {
-    test('Then it should throw an error', async () => {
-      const error = new HttpError(
-        404,
-        'New Player not found',
-        'New Player not found'
-      );
+  describe('When it is instantiated the user is not valid', () => {
+    const error = new HttpError(
+      404,
+      'New Player not found',
+      'New Player not found'
+    );
 
-      const mockUserRepo: UserRepo = {
-        queryById: jest.fn().mockResolvedValue(null),
-      } as unknown as UserRepo;
-      const mockGameRepo: GameRepo = {} as unknown as GameRepo;
+    const mockUserRepo: UserRepo = {
+      queryById: jest.fn().mockResolvedValue(null),
+    } as unknown as UserRepo;
+    const mockGameRepo: GameRepo = {} as unknown as GameRepo;
 
-      const req = {
-        body: {
-          tokenPayload: {
-            id: null,
-          },
-          gameType: 'f5',
+    const req = {
+      body: {
+        tokenPayload: {
+          id: null,
         },
-      } as unknown as Request;
+        gameType: 'f5',
+      },
+    } as unknown as Request;
+    test('Then joinGame method should throw an error', async () => {
+      const controller = new GameController(mockGameRepo, mockUserRepo);
+      await controller.joinGame(req, res, next);
 
+      expect(next).toHaveBeenCalledWith(error);
+    });
+    test('Then leaveGame method should throw an error', async () => {
       const controller = new GameController(mockGameRepo, mockUserRepo);
       await controller.leaveGame(req, res, next);
 
