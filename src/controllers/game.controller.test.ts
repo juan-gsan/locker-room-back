@@ -4,6 +4,7 @@ import { GameController } from './game.controller';
 import { UserRepo } from '../repository/user.m.repo';
 import { HttpError } from '../types/http.error';
 import { Game } from '../entities/game';
+import { mockUserF5, mockUserF7, mockUserF11, mockToken } from '../mocks/mocks';
 
 jest.mock('../middlewares/auth.interceptor');
 
@@ -14,7 +15,6 @@ let res: Response;
 let next: NextFunction;
 let count: number;
 let limit: number;
-let mockToken: string;
 let mockGame: {};
 let newPlayer: {};
 let currentGameData = {
@@ -30,7 +30,6 @@ describe('Given a game controller', () => {
     newPlayer = { id: '1' };
     currentGameData = { id: '5', players: [], spotsLeft: 2 } as unknown as Game;
     updatedGameData = { id: '5', players: [newPlayer], spotsLeft: 1 };
-    mockToken = '12345';
     mockGame = {};
     limit = 4;
     count = 10;
@@ -212,21 +211,12 @@ describe('Given a game controller', () => {
       req.body.tokenPayload = { id: mockToken };
 
       const controller = new GameController(mockGameRepo, mockUserRepo);
-
       req.body.gameType = 'f5';
-
       await controller.createGame(req, res, next);
 
-      expect(mockUserRepo.queryById).toHaveBeenCalledWith(mockToken);
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.send).toHaveBeenCalledWith(mockGame);
-      expect(mockGameRepo.create).toHaveBeenCalledWith({
-        owner: {},
-        players: [{}],
-        gameType: 'f5',
-        spotsLeft: 9,
-        tokenPayload: { id: mockToken },
-      });
+      expect(mockGameRepo.create).toHaveBeenCalledWith(mockUserF5);
     });
     test('Then method create should have been called with f7', async () => {
       req.body.tokenPayload = { id: mockToken };
@@ -239,13 +229,7 @@ describe('Given a game controller', () => {
       expect(mockUserRepo.queryById).toHaveBeenCalledWith(mockToken);
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.send).toHaveBeenCalledWith(mockGame);
-      expect(mockGameRepo.create).toHaveBeenCalledWith({
-        owner: {},
-        players: [{}],
-        gameType: 'f7',
-        spotsLeft: 13,
-        tokenPayload: { id: mockToken },
-      });
+      expect(mockGameRepo.create).toHaveBeenCalledWith(mockUserF7);
     });
     test('Then method create should have been called with f11', async () => {
       req.body.tokenPayload = { id: mockToken };
@@ -258,13 +242,7 @@ describe('Given a game controller', () => {
       expect(mockUserRepo.queryById).toHaveBeenCalledWith(mockToken);
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.send).toHaveBeenCalledWith(mockGame);
-      expect(mockGameRepo.create).toHaveBeenCalledWith({
-        owner: {},
-        players: [{}],
-        gameType: 'f11',
-        spotsLeft: 21,
-        tokenPayload: { id: mockToken },
-      });
+      expect(mockGameRepo.create).toHaveBeenCalledWith(mockUserF11);
     });
   });
 
