@@ -1,64 +1,49 @@
-# Week 9 - Proyecto final
+# LockerRoom - You'll never play alone
 
-Realiza una app fullstack MERN/MEAN con las siguientes características deseables:
+LockerRoom is a user-friendly mobile application designed to bring football enthusiasts together and streamline the process of organizing and participating in friendly football games. Whether you're a seasoned player or someone looking to kick the ball around for fun, LockerRoom is your go-to platform for creating, joining, and managing football games with friends.
 
-## Funcionalidad
+The server is hosted in render: https://lockerroom.onrender.com (Render is a free service and it turns non active projects in "sleeping mode"). Once you click in the link above, you should wait and it will only take a minute for the server to wake up!
 
-- Listado de items
-- Detalle de item (página aparte)
-- Crear item (página aparte con un formulario e imagen obligatoria con un campo tipo file)
-- Modificar item (mismo formulario que para crear)
-- Borrar item (se tiene que poder borrar desde el listado)
-- Paginación (puede ser el sistema clásico o un botón "Load more")
-- Filtros (en el propio listado, que filtre sin cambiar de página)
-- Login y registro de usuario
-- Feedbacks al usuario
-- Gestión de errores
-- Firebase (o similar) para los archivos binarios (opcionalmente como backup)
+The frontend user interface is hosted in vercel. After initiating the server, you can try the app by following the provided link: https://juan-garcia-final-project-front-202304-mad.vercel.app/
 
-## Requisitos Frontend:
+URL to github frontend repository: https://github.com/juan-gsan/LockerRoom-final-project-frontend-bootcamp-isdi
 
-- TypeScript
-- React + gestión del estado con Redux / Angular
-- moduleCSS / styled components
-- tests unitarios / de componentes (opcionalmente snapshot)
-- tests de integración
-- README con información sobre la app
-- 100% coverage
-- 0 deuda técnica
-- Lighthouse con métricas en verde
+The backend API is built using Node.js, Express and TypeScript, implementing the Domain-Driven Design (DDD) architecture pattern. The project handles users and football games.
 
-## Requisitos Backend:
+Authentication made with JWT.
 
-- TypeScript
-- Node + Express
-- auth con JWT
-- tests unitarios
-- tests de endpoints (supertest)
-- guardado de archivos binarios en disco duro / Firebase (o similar)
+Fully tested (100% coverage) with Jest.
 
-- optimización de imágenes (sharp)
-- validación de requests con Joi
+Images handled with Firebase and optimized with Sharp.
 
-- README con información de uso y con endpoints (de cada endpoint método, url, body y response)
-- 100% coverage
-- 0 deuda técnica
-- Colección de endpoints de Postman exportada como JSON (en el root del proyecto)
+## Installation
 
-## E2E:
+- Clone this repository
+- Install dependencies with `npm install`
+- Create a .env file and set the environment variables, following the example in sample.env
+- Start the server with `npm run start:dev`
 
-Proceso de login de usuario testado con Cypress
+## Main Features
 
-## Check diario:
+The API endpoints can be accessed using HTTP requests to the appropriate URL, as listed below:
 
-- daily meeting (qué tareas hice ayer, qué stoppers tuve, qué tareas haré hoy)
-- informes de sonar sobre la rama principal, front y back
-- > = 80% cover
+### User
 
-## Challenge inicial
+| Method | URL            | Description                                                                                         |
+| ------ | -------------- | --------------------------------------------------------------------------------------------------- |
+| POST   | /user/register | Register a new user. Required fields: `username`, `email`, `password`, `gender`, `level`, `avatar`. |
+| PATCH  | /user/login    | Authenticate a user. Required fields: `username` or `email`, `password`.                            |
+| GET    | /user          | Retrieve a list of users.                                                                           |
+| GET    | /user/:id      | Retrieve a user by ID.                                                                              |
 
-- Figma
-- Responsabilidades de los componentes
-- Entities y relaciones
-- Rutas del backend
-- Trello (backlog completo)
+### Game
+
+| Method | URL             | Description                                                                                                                                                                 |
+| ------ | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | /game           | Retrieve the games list with pagination. Optional query parameters: `filter`. Default query parameters: `limit` = 4, `offset`: indicates the page you are in at the moment. |
+| GET    | /game/:id       | Retrieve a single game by ID.                                                                                                                                               |
+| POST   | /game/create    | Create a new game. Requires authentication.                                                                                                                                 |
+| PATCH  | /game/join/:id  | Update list of players in a game. Requires authentication.                                                                                                                  |
+| PATCH  | /game/leave/:id | Update list of players in a game. Requires authentication.                                                                                                                  |
+| PATCH  | /game/edit/:id  | Update properties of a game. Requires authentication and the ownership of the game.                                                                                         |
+| DELETE | /game/:id       | Delete a game. Requires authentication and the ownership of the game.                                                                                                       |
