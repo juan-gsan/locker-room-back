@@ -6,7 +6,7 @@ The server is hosted in render: https://lockerroom.onrender.com (Render is a fre
 
 The frontend user interface is hosted in vercel. After initiating the server, you can try the app by following the provided link: https://juan-garcia-final-project-front-202304-mad.vercel.app/
 
-URL to github frontend repository: https://github.com/juan-gsan/LockerRoom-final-project-frontend-bootcamp-isdi
+URL to github frontend repository: https://github.com/juan-gsan/locker-room-front
 
 The backend API is built using Node.js, Express and TypeScript, implementing the Domain-Driven Design (DDD) architecture pattern. The project handles users and football games.
 
